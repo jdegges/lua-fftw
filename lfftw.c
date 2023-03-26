@@ -57,7 +57,7 @@ static void
 parse_table (lua_State *L, int index, int required)
 {
   int top = lua_gettop (L);
-  
+
   if (top < index) {
     if (required) {
       lua_pushstring (L, "expected more arguments");
@@ -178,7 +178,7 @@ lfftw_execute_dft (lua_State *L)
     lua_error (L);
   }
 
-  if ((size_t) N*2 != lua_objlen (L, 2)) {
+  if ((size_t) N*2 != lua_rawlen (L, 2)) {
     lua_pushstring (L, "input tables must be the same length");
     lua_error (L);
   }
@@ -225,7 +225,10 @@ static const luaL_Reg plan_dft_1d_methods[] = {
 
 LUALIB_API int luaopen_fftw (lua_State *L)
 {
-  luaL_register (L, LUA_FFTW_NAME, fftwlib);
+  //luaL_register (L, LUA_FFTW_NAME, fftwlib);
+  luaL_newlib(L,fftwlib);
+  //lua_newtable(L);
+  //luaL_setfuncs(L,fftwlib,0);
 
   /* Transform sign/direction */
   SET_FFTW_CONST (FORWARD);
@@ -248,8 +251,9 @@ LUALIB_API int luaopen_fftw (lua_State *L)
     lua_error (L);
   }
   lua_createtable (L, 0, sizeof (plan_dft_1d_methods) / sizeof (luaL_Reg) - 1);
-  luaL_register (L, NULL, plan_dft_1d_methods);
+  //luaL_register (L, NULL, plan_dft_1d_methods);
+  luaL_setfuncs(L,plan_dft_1d_methods,0);
   lua_setfield (L, -2, "__index");
-
+  lua_pop(L,1); // Pop the metatable so that we can return the library table
   return 1;
 }
