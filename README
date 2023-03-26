@@ -1,3 +1,7 @@
 # lua-fftw
 
 Lua bindings for FFTW.
+FFTW can be downloaded from https://www.fftw.org/download.html
+Successfully tried with 3.3.10 last
+
+Updated to work with up to Lua 5.4
