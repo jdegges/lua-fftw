@@ -147,6 +147,16 @@ lfftw_plan_dft_1d (lua_State *L)
   return 1;
 }
 
+
+static int userdataCollect(lua_State *L)
+{
+    struct plan_dft_xd *ud;
+    ud = lua_touserdata(L,1);
+    // Release the plan resource
+    fftw_destroy_plan(ud->p);
+    return 0;
+}
+
 static int
 lfftw_execute_dft (lua_State *L)
 {
@@ -157,7 +167,7 @@ lfftw_execute_dft (lua_State *L)
   fftw_complex *iobuf;
   fftw_plan p;
 
-  if (4 < n) {
+  if (3 < n) {
     lua_pushstring (L, "this function takes a maximum of 4 arguments");
     lua_error (L);
   }
@@ -191,7 +201,7 @@ lfftw_execute_dft (lua_State *L)
 
   lua_pushnil (L);
   for (n = 0; 0 != lua_next (L, 2); n++) {
-    ((double *)iobuf)[n] = lua_tonumber (L, -1);
+    ((double *)iobuf)[n] = lua_tonumber (L, -1);    // Cast iobuf to a double * pointer and then fill with number continuously
     lua_pop (L, 1);
   }
 
@@ -209,7 +219,6 @@ lfftw_execute_dft (lua_State *L)
 
   return 1;
 }
-
 
 static const luaL_Reg fftwlib[] = {
   {"plan_dft_1d", lfftw_plan_dft_1d},
@@ -254,6 +263,9 @@ LUALIB_API int luaopen_fftw (lua_State *L)
   //luaL_register (L, NULL, plan_dft_1d_methods);
   luaL_setfuncs(L,plan_dft_1d_methods,0);
   lua_setfield (L, -2, "__index");
+  // Create the __gc metamethod
+  lua_pushcfunction (L, userdataCollect);
+  lua_setfield (L, -2, "__gc");
   lua_pop(L,1); // Pop the metatable so that we can return the library table
   return 1;
 }

@@ -5,3 +5,6 @@ FFTW can be downloaded from https://www.fftw.org/download.html
 Successfully tried with 3.3.10 last
 
 Updated to work with up to Lua 5.4
+
+TO BE FIXED:
+The Lua array is filled to a fftw_complex array using double * cast operation. Which would only work when FFTW is compiled to used double *. The other versions which use SSE for speed will not work. Need to convert it to fftw_complex casting.
